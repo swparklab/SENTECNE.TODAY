@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { supabaseConfigured } from "@/lib/supabase/config";
 import { saveProfile } from "./actions";
 
 export default async function ProfileSetupPage({
@@ -9,18 +10,23 @@ export default async function ProfileSetupPage({
   const { error } = await searchParams;
 
   // 미들웨어가 비로그인 접근을 막지만, 기존 값 프리필을 위해 한 번 더 조회.
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let profile: { nickname: string | null; message: string | null } | null =
+    null;
+  if (supabaseConfigured) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  const { data: profile } = user
-    ? await supabase
+    if (user) {
+      const { data } = await supabase
         .from("profiles")
         .select("nickname, message")
         .eq("user_id", user.id)
-        .maybeSingle()
-    : { data: null };
+        .maybeSingle();
+      profile = data;
+    }
+  }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">

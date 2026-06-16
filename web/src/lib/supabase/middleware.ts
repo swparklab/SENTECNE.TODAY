@@ -1,11 +1,17 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { supabaseConfigured } from "./config";
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
 // 매 요청마다 Supabase 세션 토큰을 갱신하고 쿠키를 동기화한다.
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
+
+  // Supabase 미설정(로컬에서 키 없이 실행) 시 인증을 건너뛴다.
+  if (!supabaseConfigured) {
+    return supabaseResponse;
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

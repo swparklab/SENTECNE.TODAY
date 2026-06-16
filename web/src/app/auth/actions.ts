@@ -3,8 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseConfigured } from "@/lib/supabase/config";
+
+const NOT_CONFIGURED = "Supabase가 아직 연결되지 않았습니다 (web/README.md 참고)";
 
 export async function login(formData: FormData) {
+  if (!supabaseConfigured) {
+    redirect(`/login?error=${encodeURIComponent(NOT_CONFIGURED)}`);
+  }
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -21,6 +27,9 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
+  if (!supabaseConfigured) {
+    redirect(`/signup?error=${encodeURIComponent(NOT_CONFIGURED)}`);
+  }
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signUp({
@@ -38,6 +47,9 @@ export async function signup(formData: FormData) {
 }
 
 export async function signOut() {
+  if (!supabaseConfigured) {
+    redirect("/");
+  }
   const supabase = await createClient();
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
