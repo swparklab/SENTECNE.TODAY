@@ -1,5 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
-import { supabaseConfigured } from "@/lib/supabase/config";
+import { eq } from "drizzle-orm";
+import { getSessionUser } from "@/lib/auth/cognito";
+import { dbConfigured, getDb } from "@/db/client";
+import { profiles } from "@/db/schema";
 import { saveProfile } from "./actions";
 
 export default async function ProfileSetupPage({
@@ -9,31 +11,23 @@ export default async function ProfileSetupPage({
 }) {
   const { error } = await searchParams;
 
-  // 미들웨어가 비로그인 접근을 막지만, 기존 값 프리필을 위해 한 번 더 조회.
   let profile: { nickname: string | null; message: string | null } | null =
     null;
-  if (supabaseConfigured) {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
-    if (user) {
-      const { data } = await supabase
-        .from("profiles")
-        .select("nickname, message")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      profile = data;
-    }
+  const user = await getSessionUser();
+  if (user && dbConfigured) {
+    const rows = await getDb()
+      .select({ nickname: profiles.nickname, message: profiles.message })
+      .from(profiles)
+      .where(eq(profiles.userSub, user.sub))
+      .limit(1);
+    profile = rows[0] ?? null;
   }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
       <h1 className="mb-2 text-2xl font-bold text-ink">프로필 설정</h1>
-      <p className="mb-8 text-sm text-ink/60">
-        커뮤니티에 표시될 이름이에요.
-      </p>
+      <p className="mb-8 text-sm text-ink/60">커뮤니티에 표시될 이름이에요.</p>
 
       <form action={saveProfile} className="space-y-4">
         <input

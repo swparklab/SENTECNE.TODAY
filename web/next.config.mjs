@@ -6,11 +6,8 @@ const nextConfig = {
   // 실제 프로젝트 ref로 교체: <project-ref>.supabase.co
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "*.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
+      { protocol: "https", hostname: "*.amazonaws.com" },
+      { protocol: "https", hostname: "*.cloudfront.net" },
     ],
   },
 };

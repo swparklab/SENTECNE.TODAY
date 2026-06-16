@@ -1,37 +1,33 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { supabaseConfigured } from "@/lib/supabase/config";
+import { eq } from "drizzle-orm";
+import { getSessionUser } from "@/lib/auth/cognito";
+import { cognitoConfigured } from "@/lib/auth/config";
+import { dbConfigured, getDb } from "@/db/client";
+import { profiles } from "@/db/schema";
 import { signOut } from "./auth/actions";
 
 export default async function Home() {
-  let user: { id: string } | null = null;
+  const user = await getSessionUser();
+
   let nickname: string | null = null;
-
-  if (supabaseConfigured) {
-    const supabase = await createClient();
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
-    user = authUser;
-
-    if (user) {
-      const { data } = await supabase
-        .from("profiles")
-        .select("nickname")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      nickname = data?.nickname ?? null;
-    }
+  if (user && dbConfigured) {
+    const rows = await getDb()
+      .select({ nickname: profiles.nickname })
+      .from(profiles)
+      .where(eq(profiles.userSub, user.sub))
+      .limit(1);
+    nickname = rows[0]?.nickname ?? null;
   }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-10 px-6 text-center">
-      {!supabaseConfigured && (
+      {!cognitoConfigured && (
         <div className="fixed inset-x-0 top-0 bg-amber-50 px-4 py-2 text-center text-xs text-amber-800">
-          미리보기 모드 — Supabase가 연결되지 않아 로그인/저장은 동작하지 않습니다.{" "}
-          <code className="font-mono">web/README.md</code> 참고
+          미리보기 모드 — AWS(Cognito/Aurora)가 연결되지 않아 로그인·저장은
+          동작하지 않습니다. <code className="font-mono">web/README.md</code> 참고
         </div>
       )}
+
       <div className="space-y-3">
         <p className="text-sm tracking-widest text-brand">SENTENCE.TODAY</p>
         <h1 className="text-3xl font-bold leading-snug text-ink sm:text-4xl">
