@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const protectedPrefixes = ["/profile", "/sentence", "/write"];
+  const protectedPrefixes = ["/profile", "/sentence", "/article", "/mypage"];
   const isProtected = protectedPrefixes.some((p) =>
     request.nextUrl.pathname.startsWith(p),
   );
