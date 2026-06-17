@@ -5,6 +5,29 @@ export type Card = {
   text: string;
 };
 
+// 카드뉴스 배경/폰트 테마
+export type CardTheme = {
+  id: string;
+  label: string;
+  bg: string;
+  fg: string;
+  accent: string;
+  serif: boolean;
+};
+
+export const CARD_THEMES: CardTheme[] = [
+  { id: "classic", label: "클래식", bg: "#faf8f3", fg: "#121212", accent: "#cc3f3b", serif: true },
+  { id: "dark", label: "다크", bg: "#121212", fg: "#f4f1ea", accent: "#e0857f", serif: true },
+  { id: "brand", label: "브랜드", bg: "#cc3f3b", fg: "#ffffff", accent: "#ffe2df", serif: false },
+  { id: "mono", label: "모노", bg: "#ffffff", fg: "#161616", accent: "#9a9a9a", serif: false },
+  { id: "night", label: "나이트", bg: "#0f1b2d", fg: "#e8eef7", accent: "#7fa7d4", serif: false },
+];
+
+export const SERIF_STACK =
+  'Georgia, "Nanum Myeongjo", "Apple SD Gothic Neo", serif';
+export const SANS_STACK =
+  '"Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif';
+
 const MAX_BODY_CARDS = 10;
 const CARD_CHAR_TARGET = 90;
 

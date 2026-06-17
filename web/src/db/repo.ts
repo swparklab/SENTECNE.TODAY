@@ -298,6 +298,42 @@ export async function getCommunityFeed(): Promise<FeedRow[]> {
     .limit(50);
 }
 
+export type CommunityArticle = {
+  id: number;
+  title: string | null;
+  createdAt: unknown;
+  nickname: string | null;
+};
+
+export async function getCommunityArticles(): Promise<CommunityArticle[]> {
+  if (mockMode) {
+    seed();
+    return mem.articles
+      .slice()
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, 20)
+      .map((a) => ({
+        id: a.id,
+        title: a.title,
+        createdAt: a.createdAt,
+        nickname:
+          mem.profiles.find((p) => p.userSub === a.writerSub)?.nickname ?? null,
+      }));
+  }
+  if (!dbConfigured) return [];
+  return getDb()
+    .select({
+      id: articles.id,
+      title: articles.title,
+      createdAt: articles.createdAt,
+      nickname: profiles.nickname,
+    })
+    .from(articles)
+    .leftJoin(profiles, eq(profiles.userSub, articles.writerSub))
+    .orderBy(desc(articles.createdAt))
+    .limit(20);
+}
+
 export async function reportAndMaybeHide(
   reporterSub: string,
   sentenceId: number,

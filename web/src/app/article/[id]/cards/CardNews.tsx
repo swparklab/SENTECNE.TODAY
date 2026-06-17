@@ -1,11 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { Card } from "@/lib/cards";
-
-const INK = "#121212";
-const CREAM = "#faf8f3";
-const BRAND = "#cc3f3b";
+import {
+  CARD_THEMES,
+  SANS_STACK,
+  SERIF_STACK,
+  type Card,
+} from "@/lib/cards";
 
 export default function CardNews({
   cards,
@@ -16,8 +17,11 @@ export default function CardNews({
 }) {
   const [index, setIndex] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [themeId, setThemeId] = useState(CARD_THEMES[0].id);
   const ref = useRef<HTMLDivElement>(null);
 
+  const theme = CARD_THEMES.find((t) => t.id === themeId) ?? CARD_THEMES[0];
+  const fontFamily = theme.serif ? SERIF_STACK : SANS_STACK;
   const card = cards[index];
   const total = cards.length;
 
@@ -38,31 +42,47 @@ export default function CardNews({
 
   return (
     <div className="flex flex-col items-center gap-6">
+      {/* 테마 선택 */}
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {CARD_THEMES.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setThemeId(t.id)}
+            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition ${
+              t.id === themeId
+                ? "border-brand text-brand"
+                : "border-ink/15 text-ink/60 hover:bg-ink/5"
+            }`}
+          >
+            <span
+              className="size-3 rounded-full border border-black/10"
+              style={{ background: t.bg }}
+            />
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {/* 카드 (저장 대상) */}
       <div
         ref={ref}
         className="flex aspect-square w-[340px] flex-col justify-between p-8 sm:w-[420px]"
-        style={{
-          background: card.kind === "cover" ? INK : card.kind === "end" ? BRAND : CREAM,
-          color: card.kind === "body" ? INK : "#ffffff",
-        }}
+        style={{ background: theme.bg, color: theme.fg, fontFamily }}
       >
-        {/* 상단 */}
         <div className="flex items-center justify-between text-[11px]">
           {card.kind === "cover" ? (
-            <span style={{ color: BRAND, letterSpacing: "0.2em" }}>
+            <span style={{ color: theme.accent, letterSpacing: "0.2em" }}>
               SENTENCE.TODAY
             </span>
           ) : (
-            <span style={{ opacity: 0.5 }}>
+            <span style={{ opacity: 0.45 }}>
               {card.kind === "body" ? `${index} / ${total - 2}` : ""}
             </span>
           )}
         </div>
 
-        {/* 본문 */}
         <p
-          className="font-serif"
           style={{
             fontSize:
               card.kind === "cover" ? "30px" : card.kind === "end" ? "26px" : "22px",
@@ -74,14 +94,16 @@ export default function CardNews({
           {card.text}
         </p>
 
-        {/* 하단 */}
-        <div className="flex items-center justify-between text-[11px]" style={{ opacity: 0.6 }}>
+        <div
+          className="flex items-center justify-between text-[11px]"
+          style={{ opacity: 0.55 }}
+        >
           <span>sentence.today</span>
           {card.kind !== "end" && nickname && <span>{nickname}</span>}
         </div>
       </div>
 
-      {/* 페이지 인디케이터 */}
+      {/* 페이지 점 */}
       <div className="flex items-center gap-1.5">
         {cards.map((_, i) => (
           <button
@@ -90,7 +112,9 @@ export default function CardNews({
             aria-label={`${i + 1}번 카드`}
             onClick={() => setIndex(i)}
             className="size-2 rounded-full transition"
-            style={{ background: i === index ? BRAND : "rgba(18,18,18,0.15)" }}
+            style={{
+              background: i === index ? theme.accent : "rgba(120,120,120,0.3)",
+            }}
           />
         ))}
       </div>
