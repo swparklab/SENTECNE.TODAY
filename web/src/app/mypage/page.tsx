@@ -64,12 +64,14 @@ export default async function MyPage() {
           ) : (
             <ul className="space-y-2">
               {myArticles.map((a) => (
-                <li
-                  key={a.id}
-                  className="flex items-center justify-between rounded-lg border border-ink/10 px-4 py-3 text-sm"
-                >
-                  <span className="text-ink">{a.title || "무제"}</span>
-                  <span className="text-xs text-ink/40">{ymd(a.createdAt)}</span>
+                <li key={a.id}>
+                  <Link
+                    href={`/article/${a.id}`}
+                    className="flex items-center justify-between rounded-lg border border-ink/10 px-4 py-3 text-sm transition hover:bg-ink/[0.02]"
+                  >
+                    <span className="text-ink">{a.title || "무제"}</span>
+                    <span className="text-xs text-ink/40">{ymd(a.createdAt)}</span>
+                  </Link>
                 </li>
               ))}
             </ul>

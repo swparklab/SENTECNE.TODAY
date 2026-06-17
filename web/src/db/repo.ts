@@ -78,6 +78,15 @@ function seed() {
       createdAt: new Date(),
     });
   }
+  // 카드뉴스 등을 바로 시연할 수 있도록 기본 사용자의 샘플 글 한 편
+  mem.articles.push({
+    id: ++mem.seqA,
+    writerSub: MOCK_USER.sub,
+    title: "첫눈 오던 날",
+    body: "창문 밖으로 첫눈이 내리던 새벽, 나는 오래된 편지를 꺼냈다.\n\n글씨는 바랬지만 마음은 그대로였다. 그때 하지 못한 말들이 천천히 떠올랐다.\n\n눈은 소리 없이 쌓였고, 나는 오래도록 그 자리에 앉아 있었다.",
+    sourceSentenceIds: [],
+    createdAt: new Date(),
+  });
 }
 
 // ───────────────────────── 프로필 ─────────────────────────
@@ -318,6 +327,48 @@ export async function reportAndMaybeHide(
       .set({ isHidden: true })
       .where(eq(sentences.id, sentenceId));
   }
+}
+
+// ───────────────────────── 글 단건 ─────────────────────────
+export type ArticleDetail = {
+  id: number;
+  title: string | null;
+  body: string;
+  writerSub: string | null;
+  createdAt: unknown;
+  nickname: string | null;
+};
+
+export async function getArticle(id: number): Promise<ArticleDetail | null> {
+  if (mockMode) {
+    seed();
+    const a = mem.articles.find((x) => x.id === id);
+    if (!a) return null;
+    return {
+      id: a.id,
+      title: a.title,
+      body: a.body,
+      writerSub: a.writerSub,
+      createdAt: a.createdAt,
+      nickname:
+        mem.profiles.find((p) => p.userSub === a.writerSub)?.nickname ?? null,
+    };
+  }
+  if (!dbConfigured) return null;
+  const rows = await getDb()
+    .select({
+      id: articles.id,
+      title: articles.title,
+      body: articles.body,
+      writerSub: articles.writerSub,
+      createdAt: articles.createdAt,
+      nickname: profiles.nickname,
+    })
+    .from(articles)
+    .leftJoin(profiles, eq(profiles.userSub, articles.writerSub))
+    .where(eq(articles.id, id))
+    .limit(1);
+  return rows[0] ?? null;
 }
 
 // ───────────────────────── 마이페이지 ─────────────────────────
