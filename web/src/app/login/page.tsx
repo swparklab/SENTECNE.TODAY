@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { mockMode } from "@/lib/auth/config";
 import { login } from "../auth/actions";
 
 export default async function LoginPage({
@@ -6,6 +8,9 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
+  // 로컬(mock) 모드에서는 로그인 없이 사용하므로 홈으로
+  if (mockMode) redirect("/");
+
   const { error, notice } = await searchParams;
 
   return (

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth/session";
+import { mockMode } from "@/lib/auth/config";
 import { signOut } from "@/app/auth/actions";
 
 export default async function Nav() {
@@ -22,11 +23,13 @@ export default async function Nav() {
             <Link href="/mypage" className="hover:text-ink">
               마이페이지
             </Link>
-            <form action={signOut}>
-              <button type="submit" className="hover:text-ink">
-                로그아웃
-              </button>
-            </form>
+            {!mockMode && (
+              <form action={signOut}>
+                <button type="submit" className="hover:text-ink">
+                  로그아웃
+                </button>
+              </form>
+            )}
           </>
         ) : (
           <Link href="/login" className="hover:text-ink">

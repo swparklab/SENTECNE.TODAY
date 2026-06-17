@@ -1,6 +1,6 @@
 import "server-only";
 import { and, count, desc, eq, inArray, or } from "drizzle-orm";
-import { mockMode } from "@/lib/auth/config";
+import { mockMode, MOCK_USER } from "@/lib/auth/config";
 import { dbConfigured, getDb } from "./client";
 import {
   articles,
@@ -61,6 +61,8 @@ function seed() {
   if (mem.seeded) return;
   mem.seeded = true;
   mem.profiles.push({ userSub: "seed-author", nickname: "지난계절", message: null });
+  // 로그인 없이 쓰는 기본 사용자 프로필
+  mem.profiles.push({ userSub: MOCK_USER.sub, nickname: "나", message: null });
   const samples = [
     "창문 밖으로 첫눈이 내리던 새벽, 나는 오래된 편지를 꺼냈다.",
     "지하철에서 마주친 낯선 사람의 표정이 하루 종일 떠나지 않았다.",

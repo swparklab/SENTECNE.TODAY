@@ -14,6 +14,9 @@ export const mockMode =
 // 인증이 동작 가능한 상태인가 (실제 Cognito 또는 mock)
 export const authReady = cognitoConfigured || mockMode;
 
+// mock 모드의 기본 사용자 (로그인 없이 자동 로그인 상태로 취급)
+export const MOCK_USER = { sub: "local-user", email: "local@sentence.today" };
+
 // 세션 쿠키 이름
 export const ID_COOKIE = "st_id_token";
 export const ACCESS_COOKIE = "st_access_token";

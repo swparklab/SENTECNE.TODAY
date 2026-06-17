@@ -5,8 +5,8 @@ export default function ModeBanner() {
   if (mockMode) {
     return (
       <div className="bg-sky-50 px-4 py-2 text-center text-xs text-sky-800">
-        로컬 테스트 모드 — 로그인·저장이 동작하지만 데이터는 메모리에만 있고 서버
-        재시작 시 초기화됩니다.
+        로컬 테스트 모드 — 로그인 없이 바로 사용 중. 데이터는 메모리에만 있고
+        서버 재시작 시 초기화됩니다.
       </div>
     );
   }

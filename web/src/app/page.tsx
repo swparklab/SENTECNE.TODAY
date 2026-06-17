@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ModeBanner from "@/components/ModeBanner";
 import { getSessionUser } from "@/lib/auth/session";
+import { mockMode } from "@/lib/auth/config";
 import { dataReady } from "@/db/client";
 import { getProfileNickname } from "@/db/repo";
 import { signOut } from "./auth/actions";
@@ -51,14 +52,16 @@ export default async function Home() {
               >
                 커뮤니티
               </Link>
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="rounded-full border border-ink/15 px-6 py-3 text-sm font-medium text-ink/70 transition hover:bg-ink/5"
-                >
-                  로그아웃
-                </button>
-              </form>
+              {!mockMode && (
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    className="rounded-full border border-ink/15 px-6 py-3 text-sm font-medium text-ink/70 transition hover:bg-ink/5"
+                  >
+                    로그아웃
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         ) : (
