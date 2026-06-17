@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/aws-data-api/pg";
 import { RDSDataClient } from "@aws-sdk/client-rds-data";
-import { awsRegion } from "@/lib/auth/config";
+import { awsRegion, mockMode } from "@/lib/auth/config";
 import * as schema from "./schema";
 
 // Aurora Serverless v2 (PostgreSQL) — RDS Data API 사용
@@ -10,6 +10,9 @@ export const auroraSecretArn = process.env.AURORA_SECRET_ARN ?? "";
 export const auroraDatabase = process.env.AURORA_DATABASE ?? "sentence_today";
 
 export const dbConfigured = !!auroraResourceArn && !!auroraSecretArn;
+
+// 데이터 작업이 가능한 상태인가 (실제 Aurora 또는 mock)
+export const dataReady = dbConfigured || mockMode;
 
 function createDb() {
   const rds = new RDSDataClient({ region: awsRegion });

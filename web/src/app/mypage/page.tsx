@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { desc, eq } from "drizzle-orm";
+import ModeBanner from "@/components/ModeBanner";
 import Nav from "@/components/Nav";
-import { getSessionUser } from "@/lib/auth/cognito";
-import { cognitoConfigured } from "@/lib/auth/config";
-import { dbConfigured, getDb } from "@/db/client";
-import { articles, profiles, sentences } from "@/db/schema";
+import { getSessionUser } from "@/lib/auth/session";
+import { authReady } from "@/lib/auth/config";
+import { dataReady } from "@/db/client";
+import { getMyArticles, getMySentences, getProfileNickname } from "@/db/repo";
 
 function ymd(v: unknown) {
   const d = new Date(v as string | number | Date);
@@ -17,11 +17,12 @@ export default async function MyPage() {
   if (!user) {
     return (
       <>
+        <ModeBanner />
         <Nav />
         <main className="mx-auto max-w-2xl px-6 py-12">
           <h1 className="text-2xl font-bold text-ink">마이페이지</h1>
           <p className="mt-4 text-sm text-ink/60">
-            {cognitoConfigured ? (
+            {authReady ? (
               <>
                 로그인이 필요합니다.{" "}
                 <Link href="/login" className="font-medium text-brand">
@@ -29,7 +30,7 @@ export default async function MyPage() {
                 </Link>
               </>
             ) : (
-              "미리보기 모드 — AWS 미연결 상태입니다."
+              "미리보기 모드 — 인증이 연결되지 않았습니다."
             )}
           </p>
         </main>
@@ -37,45 +38,17 @@ export default async function MyPage() {
     );
   }
 
-  let nickname: string | null = null;
-  let myArticles: { id: number; title: string | null; createdAt: unknown }[] =
-    [];
-  let myShared: { id: number; text: string; createdAt: unknown }[] = [];
-
-  if (dbConfigured) {
-    const db = getDb();
-    const prof = await db
-      .select({ nickname: profiles.nickname })
-      .from(profiles)
-      .where(eq(profiles.userSub, user.sub))
-      .limit(1);
-    nickname = prof[0]?.nickname ?? null;
-
-    myArticles = await db
-      .select({
-        id: articles.id,
-        title: articles.title,
-        createdAt: articles.createdAt,
-      })
-      .from(articles)
-      .where(eq(articles.writerSub, user.sub))
-      .orderBy(desc(articles.createdAt))
-      .limit(50);
-
-    myShared = await db
-      .select({
-        id: sentences.id,
-        text: sentences.text,
-        createdAt: sentences.createdAt,
-      })
-      .from(sentences)
-      .where(eq(sentences.writerSub, user.sub))
-      .orderBy(desc(sentences.createdAt))
-      .limit(100);
-  }
+  const [nickname, myArticles, myShared] = dataReady
+    ? await Promise.all([
+        getProfileNickname(user.sub),
+        getMyArticles(user.sub),
+        getMySentences(user.sub),
+      ])
+    : [null, [], []];
 
   return (
     <>
+      <ModeBanner />
       <Nav />
       <main className="mx-auto max-w-2xl px-6 py-12">
         <h1 className="text-2xl font-bold text-ink">

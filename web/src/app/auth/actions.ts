@@ -2,13 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { cognitoConfigured } from "@/lib/auth/config";
-import { signIn, signUp, signOutSession } from "@/lib/auth/cognito";
+import { authReady, mockMode } from "@/lib/auth/config";
+import { signIn, signUp, signOutSession } from "@/lib/auth/session";
 
-const NOT_CONFIGURED = "AWS Cognito가 아직 연결되지 않았습니다 (web/README.md 참고)";
+const NOT_CONFIGURED = "인증이 아직 연결되지 않았습니다 (web/README.md 참고)";
 
 export async function login(formData: FormData) {
-  if (!cognitoConfigured) {
+  if (!authReady) {
     redirect(`/login?error=${encodeURIComponent(NOT_CONFIGURED)}`);
   }
 
@@ -27,7 +27,7 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
-  if (!cognitoConfigured) {
+  if (!authReady) {
     redirect(`/signup?error=${encodeURIComponent(NOT_CONFIGURED)}`);
   }
 
@@ -41,6 +41,12 @@ export async function signup(formData: FormData) {
     redirect(`/signup?error=${encodeURIComponent(msg)}`);
   }
 
+  if (mockMode) {
+    // mock은 가입 즉시 로그인되므로 바로 프로필 설정으로
+    revalidatePath("/", "layout");
+    redirect("/profile/setup");
+  }
+
   redirect(
     `/login?notice=${encodeURIComponent(
       "가입이 접수되었습니다. 이메일 인증 후 로그인해 주세요.",
@@ -49,7 +55,7 @@ export async function signup(formData: FormData) {
 }
 
 export async function signOut() {
-  if (cognitoConfigured) {
+  if (authReady) {
     await signOutSession();
   }
   revalidatePath("/", "layout");

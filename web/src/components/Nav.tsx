@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getSessionUser } from "@/lib/auth/cognito";
+import { getSessionUser } from "@/lib/auth/session";
 import { signOut } from "@/app/auth/actions";
 
 export default async function Nav() {

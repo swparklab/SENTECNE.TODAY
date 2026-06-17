@@ -2,16 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { count, eq } from "drizzle-orm";
-import { cognitoConfigured } from "@/lib/auth/config";
-import { getSessionUser } from "@/lib/auth/cognito";
-import { dbConfigured, getDb } from "@/db/client";
-import { reports, sentences } from "@/db/schema";
-
-const HIDE_THRESHOLD = 3;
+import { authReady } from "@/lib/auth/config";
+import { getSessionUser } from "@/lib/auth/session";
+import { dataReady } from "@/db/client";
+import { reportAndMaybeHide } from "@/db/repo";
 
 export async function reportSentence(formData: FormData) {
-  if (!cognitoConfigured || !dbConfigured) {
+  if (!authReady || !dataReady) {
     redirect("/community");
   }
 
@@ -25,26 +22,8 @@ export async function reportSentence(formData: FormData) {
     redirect("/community");
   }
 
-  const db = getDb();
-  await db.insert(reports).values({
-    sentenceId,
-    reporterSub: user.sub,
-    reason: "user_report",
-  });
-
-  // 1차 모더레이션: 신고 누적 시 자동 숨김
-  const [{ c }] = await db
-    .select({ c: count() })
-    .from(reports)
-    .where(eq(reports.sentenceId, sentenceId));
-
-  if (Number(c) >= HIDE_THRESHOLD) {
-    await db
-      .update(sentences)
-      .set({ isHidden: true })
-      .where(eq(sentences.id, sentenceId));
-  }
+  await reportAndMaybeHide(user.sub, sentenceId);
 
   revalidatePath("/community");
-  redirect(`/community?reported=1`);
+  redirect("/community?reported=1");
 }

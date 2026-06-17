@@ -2,9 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { getSessionUser } from "@/lib/auth/cognito";
-import { dbConfigured, getDb } from "@/db/client";
-import { profiles } from "@/db/schema";
+import { getSessionUser } from "@/lib/auth/session";
+import { dataReady } from "@/db/client";
+import { upsertProfile } from "@/db/repo";
 
 export async function saveProfile(formData: FormData) {
   const user = await getSessionUser();
@@ -12,9 +12,9 @@ export async function saveProfile(formData: FormData) {
     redirect("/login");
   }
 
-  if (!dbConfigured) {
+  if (!dataReady) {
     redirect(
-      `/profile/setup?error=${encodeURIComponent("DB가 연결되지 않았습니다")}`,
+      `/profile/setup?error=${encodeURIComponent("저장소가 연결되지 않았습니다")}`,
     );
   }
 
@@ -28,13 +28,7 @@ export async function saveProfile(formData: FormData) {
   }
 
   try {
-    await getDb()
-      .insert(profiles)
-      .values({ userSub: user.sub, nickname, message: message || null })
-      .onConflictDoUpdate({
-        target: profiles.userSub,
-        set: { nickname, message: message || null },
-      });
+    await upsertProfile(user.sub, nickname, message || null);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "저장에 실패했습니다.";
     redirect(`/profile/setup?error=${encodeURIComponent(msg)}`);

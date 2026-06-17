@@ -1,10 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { cognitoConfigured, ID_COOKIE } from "@/lib/auth/config";
+import { authReady, mockMode, ID_COOKIE, MOCK_COOKIE } from "@/lib/auth/config";
 
-// 미들웨어는 Edge 런타임에서 돈다. AWS SDK를 들이지 않고
-// 세션 쿠키 존재 여부만 가볍게 확인한다. (실제 검증은 서버 컴포넌트에서)
+// Edge 런타임. AWS SDK를 들이지 않고 세션 쿠키 존재만 가볍게 확인한다.
 export function middleware(request: NextRequest) {
-  if (!cognitoConfigured) {
+  if (!authReady) {
     return NextResponse.next();
   }
 
@@ -13,7 +12,8 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(p),
   );
 
-  if (isProtected && !request.cookies.get(ID_COOKIE)?.value) {
+  const cookieName = mockMode ? MOCK_COOKIE : ID_COOKIE;
+  if (isProtected && !request.cookies.get(cookieName)?.value) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

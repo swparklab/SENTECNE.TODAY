@@ -1,17 +1,17 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cognitoConfigured } from "@/lib/auth/config";
-import { getSessionUser } from "@/lib/auth/cognito";
-import { dbConfigured, getDb } from "@/db/client";
-import { sentences } from "@/db/schema";
+import { authReady } from "@/lib/auth/config";
+import { getSessionUser } from "@/lib/auth/session";
+import { dataReady } from "@/db/client";
+import { createSentences } from "@/db/repo";
 
 type Item = { text: string; selected: boolean };
 
 export async function submitSentences(formData: FormData) {
-  if (!cognitoConfigured || !dbConfigured) {
+  if (!authReady || !dataReady) {
     redirect(
-      `/sentence/write?error=${encodeURIComponent("AWS가 연결되지 않아 저장할 수 없습니다 (미리보기 모드)")}`,
+      `/sentence/write?error=${encodeURIComponent("저장소가 연결되지 않았습니다")}`,
     );
   }
 
@@ -27,37 +27,24 @@ export async function submitSentences(formData: FormData) {
     parsed = [];
   }
 
-  const cleaned = parsed
-    .map((p) => ({ text: String(p.text ?? "").trim(), selected: !!p.selected }))
-    .filter((p) => p.text.length > 0);
-
-  if (cleaned.length === 0) {
+  if (!Array.isArray(parsed) || parsed.every((p) => !String(p?.text ?? "").trim())) {
     redirect(
       `/sentence/write?error=${encodeURIComponent("문장을 한 개 이상 입력해주세요")}`,
     );
   }
 
-  const rows = cleaned.map((c) => ({
-    writerSub: user.sub,
-    text: c.text,
-    status: (c.selected ? "draft" : "shared") as "draft" | "shared",
-  }));
-
   let selectedIds: number[] = [];
   try {
-    const inserted = await getDb()
-      .insert(sentences)
-      .values(rows)
-      .returning({ id: sentences.id, status: sentences.status });
-    selectedIds = inserted
-      .filter((r) => r.status === "draft")
-      .map((r) => r.id);
+    const result = await createSentences(
+      user.sub,
+      parsed.map((p) => ({ text: String(p.text ?? ""), selected: !!p.selected })),
+    );
+    selectedIds = result.selectedIds;
   } catch (e) {
     const msg = e instanceof Error ? e.message : "저장에 실패했습니다.";
     redirect(`/sentence/write?error=${encodeURIComponent(msg)}`);
   }
 
-  // 선택한 문장이 없으면 전부 커뮤니티로 공유된 것
   if (selectedIds.length === 0) {
     redirect("/community?shared=1");
   }

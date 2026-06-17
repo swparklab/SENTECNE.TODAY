@@ -1,9 +1,9 @@
-import { and, eq, inArray, or } from "drizzle-orm";
+import ModeBanner from "@/components/ModeBanner";
 import Nav from "@/components/Nav";
-import { getSessionUser } from "@/lib/auth/cognito";
-import { dbConfigured, getDb } from "@/db/client";
-import { sentences } from "@/db/schema";
-import { publishArticle } from "./actions";
+import { getSessionUser } from "@/lib/auth/session";
+import { dataReady } from "@/db/client";
+import { getStarterSentences } from "@/db/repo";
+import { publish } from "./actions";
 
 export default async function ArticleWritePage({
   searchParams,
@@ -19,23 +19,16 @@ export default async function ArticleWritePage({
 
   const user = await getSessionUser();
 
-  let starters: { id: number; text: string }[] = [];
-  if (dbConfigured && user && ids.length > 0) {
-    starters = await getDb()
-      .select({ id: sentences.id, text: sentences.text })
-      .from(sentences)
-      .where(
-        and(
-          inArray(sentences.id, ids),
-          or(eq(sentences.writerSub, user.sub), eq(sentences.status, "shared")),
-        ),
-      );
-  }
+  const starters =
+    user && dataReady && ids.length > 0
+      ? await getStarterSentences(user.sub, ids)
+      : [];
 
   const bodyDefault = starters.map((s) => s.text).join("\n\n");
 
   return (
     <>
+      <ModeBanner />
       <Nav />
       <main className="mx-auto max-w-2xl px-6 py-12">
         <h1 className="text-2xl font-bold text-ink">글 쓰기</h1>
@@ -62,7 +55,7 @@ export default async function ArticleWritePage({
           </div>
         )}
 
-        <form action={publishArticle} className="space-y-4">
+        <form action={publish} className="space-y-4">
           <input type="hidden" name="ids" value={ids.join(",")} />
           <input
             name="title"
