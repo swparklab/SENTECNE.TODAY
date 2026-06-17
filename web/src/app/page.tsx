@@ -2,6 +2,7 @@ import Link from "next/link";
 import ModeBanner from "@/components/ModeBanner";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import Logo from "@/components/Logo";
 import { getSessionUser } from "@/lib/auth/session";
 import { dataReady } from "@/db/client";
 import { getProfileNickname } from "@/db/repo";
@@ -41,10 +42,14 @@ export default async function Home() {
 
       <main>
         {/* 히어로 — 오늘의 문장 */}
-        <section className="mx-auto flex max-w-2xl flex-col items-center px-6 py-28 text-center sm:py-36">
-          <p className="text-xs tracking-[0.3em] text-brand">오늘의 문장</p>
+        <section className="mx-auto flex max-w-2xl flex-col items-center px-6 py-24 text-center sm:py-32">
+          <Logo className="text-3xl text-ink sm:text-5xl" />
 
-          <blockquote className="mt-8 font-serif text-[26px] leading-[1.6] text-ink sm:text-[38px] sm:leading-[1.55]">
+          <p className="mt-14 text-xs tracking-[0.3em] text-brand">
+            오늘의 문장
+          </p>
+
+          <blockquote className="mt-7 font-serif text-[26px] leading-[1.6] text-ink sm:text-[38px] sm:leading-[1.55]">
             {poem.lines.map((line, i) => (
               <span key={i} className="block">
                 {line}

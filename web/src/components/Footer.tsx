@@ -1,12 +1,11 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function Footer() {
   return (
     <footer className="mt-24 border-t border-ink/10 bg-ink/[0.02]">
       <div className="mx-auto max-w-3xl px-6 py-14 text-center">
-        <p className="font-serif text-xl text-ink">
-          오늘<span className="text-brand">:</span>의 문장
-        </p>
+        <Logo className="text-2xl text-ink" />
         <p className="mt-2 text-sm text-ink/50">
           모든 글은 하나의 문장에서 시작된다
         </p>

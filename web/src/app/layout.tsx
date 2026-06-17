@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "sentence.today",
+  title: "<오늘:의 문장>",
   description: "모든 글은 하나의 문장에서 시작된다",
 };
 

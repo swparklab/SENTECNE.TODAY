@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import { getSessionUser } from "@/lib/auth/session";
 import { mockMode } from "@/lib/auth/config";
 import { signOut } from "@/app/auth/actions";
@@ -9,11 +10,8 @@ export default async function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-ink/10 bg-[var(--background)]/85 backdrop-blur">
       <nav className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          className="font-serif text-lg font-bold tracking-tight text-ink"
-        >
-          오늘<span className="text-brand">:</span>의 문장
+        <Link href="/" className="text-ink">
+          <Logo className="text-lg" />
         </Link>
         <div className="flex items-center gap-5 text-sm text-ink/65">
           <Link href="/community" className="hover:text-ink">
