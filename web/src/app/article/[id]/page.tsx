@@ -42,7 +42,7 @@ export default async function ArticleDetailPage({
           </Link>
         </div>
 
-        <h1 className="text-2xl font-bold leading-snug text-ink">
+        <h1 className="font-serif text-3xl font-bold leading-snug text-ink">
           {article.title || "무제"}
         </h1>
 

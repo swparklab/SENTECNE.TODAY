@@ -15,7 +15,7 @@ export default async function SignupPage({
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <h1 className="mb-2 text-2xl font-bold text-ink">시작하기</h1>
+      <h1 className="mb-2 font-serif text-3xl font-bold text-ink">시작하기</h1>
       <p className="mb-8 text-sm text-ink/60">
         한 문장이면 충분합니다.
       </p>

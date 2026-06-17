@@ -51,7 +51,7 @@ export default async function MyPage() {
       <ModeBanner />
       <Nav />
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <h1 className="text-2xl font-bold text-ink">
+        <h1 className="font-serif text-3xl font-bold text-ink">
           {nickname ?? user.email ?? "마이페이지"}
         </h1>
 

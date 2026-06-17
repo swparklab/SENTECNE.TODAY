@@ -15,7 +15,7 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <h1 className="mb-8 text-2xl font-bold text-ink">로그인</h1>
+      <h1 className="mb-8 font-serif text-3xl font-bold text-ink">로그인</h1>
 
       {notice && (
         <p className="mb-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700">

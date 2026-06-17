@@ -18,7 +18,7 @@ export default async function ProfileSetupPage({
     <>
       <ModeBanner />
       <main className="mx-auto flex min-h-[80vh] max-w-sm flex-col justify-center px-6">
-        <h1 className="mb-2 text-2xl font-bold text-ink">프로필 설정</h1>
+        <h1 className="mb-2 font-serif text-3xl font-bold text-ink">프로필 설정</h1>
         <p className="mb-8 text-sm text-ink/60">커뮤니티에 표시될 이름이에요.</p>
 
         <form action={saveProfile} className="space-y-4">

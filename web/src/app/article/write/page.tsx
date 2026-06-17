@@ -32,7 +32,7 @@ export default async function ArticleWritePage({
       <ModeBanner />
       <Nav />
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <h1 className="text-2xl font-bold text-ink">글 쓰기</h1>
+        <h1 className="font-serif text-3xl font-bold text-ink">글 쓰기</h1>
         <p className="mt-2 mb-8 text-sm text-ink/60">
           고른 문장에서 시작해 한 편의 글로 완성해보세요. 막히면 도우미를
           불러도 좋아요.

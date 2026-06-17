@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ModeBanner from "@/components/ModeBanner";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import { getSessionUser } from "@/lib/auth/session";
 import { dataReady } from "@/db/client";
 import { getCommunityArticles, getCommunityFeed } from "@/db/repo";
@@ -22,7 +23,7 @@ export default async function CommunityPage() {
       <ModeBanner />
       <Nav />
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <h1 className="text-2xl font-bold text-ink">커뮤니티</h1>
+        <h1 className="font-serif text-3xl font-bold text-ink">커뮤니티</h1>
         <p className="mt-2 mb-10 text-sm text-ink/60">
           발행된 글과 공유된 문장을 둘러보세요. 마음에 드는 문장으로 글을
           시작해도 좋아요.
@@ -103,6 +104,7 @@ export default async function CommunityPage() {
           )}
         </section>
       </main>
+      <Footer />
     </>
   );
 }
