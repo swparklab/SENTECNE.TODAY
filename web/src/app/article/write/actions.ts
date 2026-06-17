@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { authReady } from "@/lib/auth/config";
 import { getSessionUser } from "@/lib/auth/session";
 import { dataReady } from "@/db/client";
-import { publishArticle } from "@/db/repo";
+import { publishArticle, getStarterSentences } from "@/db/repo";
+import { getWritingHelp, type HelpMode } from "@/lib/llm/claude";
 
 export async function publish(formData: FormData) {
   if (!authReady || !dataReady) {
@@ -44,4 +45,29 @@ export async function publish(formData: FormData) {
 
   revalidatePath("/mypage");
   redirect("/mypage");
+}
+
+// 글쓰기 보조: 이어쓸 문장 제안 또는 막혔을 때의 질문을 돌려준다.
+export async function requestWritingHelp(input: {
+  mode: HelpMode;
+  title: string;
+  body: string;
+  ids: number[];
+}): Promise<{ items: string[] }> {
+  let starters: string[] = [];
+  if (dataReady && Array.isArray(input.ids) && input.ids.length > 0) {
+    const user = await getSessionUser();
+    if (user) {
+      const rows = await getStarterSentences(user.sub, input.ids);
+      starters = rows.map((s) => s.text);
+    }
+  }
+
+  const items = await getWritingHelp(input.mode, {
+    title: String(input.title ?? ""),
+    body: String(input.body ?? ""),
+    starters,
+  });
+
+  return { items };
 }
